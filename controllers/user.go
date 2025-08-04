@@ -8,3 +8,10 @@ type UserController struct {
 	beego.Controller
 }
 
+func (c *UserController) ShowRegister() {
+	c.TplName = "register.html"
+}
+
+func (c *UserController) HandleRegister() {
+	//TODO: handle register logic here
+}
