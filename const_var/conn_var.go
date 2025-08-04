@@ -17,6 +17,7 @@ const (
 	host     = "106.15.36.199"
 	port     = "3306"
 	dbName   = "day_day_fresh"
+
 )
 
 var MYSQL_CONN_STR = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
