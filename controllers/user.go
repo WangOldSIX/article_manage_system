@@ -3,6 +3,7 @@ package controllers
 import (
 	constvar "day_day_fresh/const_var"
 	"day_day_fresh/models"
+	"encoding/base64"
 	"regexp"
 	"strconv"
 	"strings"
@@ -136,31 +137,69 @@ func (c *UserController) ActiveUser() {
 }
 
 func (c *UserController) ShowLogin() {
-	userName:=c.GetString("username")
-	if len(userName)==0 {
-		logs.Error("获取用户失败:")
-		c.Data["errmsg"] = "登录失败，获取用户失败"
-		c.TplName = "login.html"
-		return
+	userName := c.Ctx.GetCookie("username")
+	logs.Info("加密的用户名\n%v",userName)
+	//解码
+	temp,_:=base64.StdEncoding.DecodeString(userName)
+	if string(temp) == "" {
+		c.Data["userName"]=""
+		c.Data["checked"]=""
+	}else{
+		c.Data["userName"]=string(temp)
+		c.Data["checked"]="checked"
 	}
-	logs.Info("获取用户:%v", userName)
-	o := orm.NewOrm()
-	var user models.User
-	user.Name = userName
-	err := o.Read(&user)
-	if err != nil {
-		logs.Error("读取用户信息失败:%v", err)
-		c.Data["errmsg"] = "登录失败，读取用户信息失败"
-		c.TplName = "login.html"
-		return
-	}
-	if user.Active != true {
-		logs.Info("用户:%v 未激活", user)
-		c.Data["errmsg"] = "用户未激活"
-		c.TplName = "login.html"
-		return
+
+	if userName != "" {
+		c.Data["remember_username"] = "checked"
 	}
 	c.TplName = "login.html"
 }
 
-func (c *UserController) HandleLogin() {}
+
+
+func (c *UserController) HandleLogin() {
+	userName := c.GetString("username")
+	pwd := c.GetString("pwd")
+	if len(userName) == 0 || len(pwd) == 0 {
+		logs.Error("用户名或密码不能为空")
+		c.Data["errmsg"] = "用户名或密码不能为空"
+		c.TplName = "login.html"
+		return
+	}
+	o := orm.NewOrm()
+	var user models.User
+	user.Name = userName
+	err := o.Read(&user, "Name")
+	if err != nil {
+		logs.Error("读取用户信息失败:%v", err)
+		c.Data["errmsg"] = "登录失败，用户名不存在"
+		c.TplName = "login.html"
+		return
+	}
+	if user.PassWord != pwd {
+		logs.Info("用户名或密码错误:%v", user)
+		c.Data["errmsg"] = "用户名或密码错误"
+		c.TplName = "login.html"
+		return
+	}
+	if !user.Active {
+		logs.Info("用户:%v 未激活", user)
+		c.Data["errmsg"] = "用户未激活,请前往邮箱激活账号"
+		c.TplName = "login.html"
+		return
+	}
+
+	logs.Info("用户:%v 登录成功", user)
+	//记住用户选项
+	remember_username := c.GetString("remember_username")
+	if remember_username == "on" {
+		tmp_username:= base64.StdEncoding.EncodeToString([]byte(remember_username))
+		logs.Info("记住用户名(加密):%v", tmp_username)
+		c.Ctx.SetCookie("username", tmp_username, 3600*24*7)
+	} else {
+		c.Ctx.SetCookie("username", "", -1)
+	}
+	c.Data["userName"] = user.Name
+	c.Data["errmsg"] = "登录成功"
+	c.TplName = "login.html"
+}
