@@ -201,5 +201,10 @@ func (c *UserController) HandleLogin() {
 	}
 	c.Data["userName"] = user.Name
 	c.Data["errmsg"] = "登录成功"
-	c.TplName = "login.html"
+
+	//配置session
+	c.SetSession("userName",userName)
+
+	
+	c.Ctx.WriteString("登录成功")
 }
