@@ -25,3 +25,5 @@ func (c *GoodsController) ShowIndex() {
 	getUser(&c.Controller)
 	c.TplName = "index.html"
 }
+
+
