@@ -256,8 +256,17 @@ func (c *UserController) ShowUserCenterInfo() {
 	c.TplName = "user_center_info.html"
 }
 
+//用户中心订单
 func (c *UserController) ShowUserCenterOrder() {
 	getUser(&c.Controller)
 	c.Layout = "userCenterLayout.html"
 	c.TplName = "user_center_order.html"
+}
+
+//用户中心收货地址
+func (c *UserController) ShowUserCenterSite() {
+	getUser(&c.Controller)
+	
+	c.Layout = "userCenterLayout.html"
+	c.TplName = "user_center_site.html"
 }

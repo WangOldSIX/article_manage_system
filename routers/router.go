@@ -24,6 +24,8 @@ func init() {
 	beego.Router("/user/userCenterInfo", &controllers.UserController{},"get:ShowUserCenterInfo")
 	//全部订单
 	beego.Router("/user/userCenterOrder", &controllers.UserController{},"get:ShowUserCenterOrder")
+	//地址页面
+	beego.Router("/user/userCenterSite", &controllers.UserController{},"get:ShowUserCenterSite")
 
 }
 
