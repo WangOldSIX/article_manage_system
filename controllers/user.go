@@ -256,17 +256,75 @@ func (c *UserController) ShowUserCenterInfo() {
 	c.TplName = "user_center_info.html"
 }
 
-//用户中心订单
+// 用户中心订单
 func (c *UserController) ShowUserCenterOrder() {
 	getUser(&c.Controller)
 	c.Layout = "userCenterLayout.html"
 	c.TplName = "user_center_order.html"
 }
 
-//用户中心收货地址
+// 用户中心收货地址
 func (c *UserController) ShowUserCenterSite() {
-	getUser(&c.Controller)
-	
+	userName := getUser(&c.Controller)
+	// c.Data["userName"] = userName
+	//查询用户地址
+	o := orm.NewOrm()
+	var addr models.Address
+	o.QueryTable("Address").
+	RelatedSel("User").
+	Filter("User__Name", userName).
+	Filter("Isdefault", true).
+	One(&addr)
+
+	logs.Info("用户:%v 默认地址:%v", userName, addr)
+	c.Data["addr"] = addr
+
 	c.Layout = "userCenterLayout.html"
 	c.TplName = "user_center_site.html"
+}
+
+func (c *UserController) HandleUserCenterSite() {
+	//获取数据
+	receiver := c.GetString("receiver")
+	addr := c.GetString("addr")
+	zipcode := c.GetString("zipcode")
+	phone := c.GetString("phone")
+	logs.Info("收件人:%v 地址:%v 邮编:%v 手机:%v", receiver, addr, zipcode, phone)
+	//检验数据
+	/* if receiver == "" || addr == "" || zipcode == "" || phone == "" {
+		logs.Error("收件人、地址、邮编、手机不能为空")
+		c.Data["errmsg"] = "收件人、地址、邮编、手机不能为空"
+		c.Redirect("/user/userCenterSite", 302)
+		return
+	} */
+	//处理数据
+	//插入操作
+	o := orm.NewOrm()
+	var addrUser models.Address
+	addrUser.Isdefault = true
+	err := o.Read(&addrUser, "Isdefault")
+	//添加默认地址之前，需要把原来的默认地址取消默认
+	if err == nil {
+		addrUser.Isdefault = false
+		o.Update(&addrUser)
+	}
+	//更新默认地址，给原来的地址对象赋值了，这时候用原来的地址对象再插入就不对了
+	//关联对象
+	userName := c.GetSession("userName")
+	var user models.User
+	user.Name = userName.(string)
+	o.Read(&user, "Name")
+	var addrUserNew models.Address
+	addrUserNew.Receiver = receiver
+	addrUserNew.Addr = addr
+	addrUserNew.Zipcode = zipcode
+	addrUserNew.Phone = phone
+	addrUserNew.Isdefault = true
+	//关联的用户
+	addrUserNew.User = &user
+	o.Insert(&addrUserNew)
+
+	logs.Info("用户:%v 添加收货地址%v成功", user, addrUserNew)
+	//返回视图
+	c.Redirect("/user/userCenterSite", 302)
 }
