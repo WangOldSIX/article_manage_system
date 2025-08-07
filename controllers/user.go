@@ -287,16 +287,34 @@ func (c *UserController) HandleUserCenterSite() {
 	//获取数据
 	receiver := c.GetString("receiver")
 	addr := c.GetString("addr")
-	zipcode := c.GetString("zipcode")
+	zipcode := c.GetString("zipCode")
 	phone := c.GetString("phone")
 	logs.Info("收件人:%v 地址:%v 邮编:%v 手机:%v", receiver, addr, zipcode, phone)
 	//检验数据
-	/* if receiver == "" || addr == "" || zipcode == "" || phone == "" {
-		logs.Error("收件人、地址、邮编、手机不能为空")
-		c.Data["errmsg"] = "收件人、地址、邮编、手机不能为空"
+	if receiver==""{
+		c.Data["errmsg"] = "收件人不能为空"
+		logs.Error("收件人不能为空")
 		c.Redirect("/user/userCenterSite", 302)
 		return
-	} */
+	}
+	if addr==""{
+		c.Data["errmsg"] = "地址不能为空"
+		logs.Error("地址不能为空")
+		c.Redirect("/user/userCenterSite", 302)
+		return
+	}
+	if zipcode==""{
+		c.Data["errmsg"] = "邮编不能为空"
+		logs.Error("邮编不能为空")
+		c.Redirect("/user/userCenterSite", 302)
+		return
+	}
+	if phone==""{
+		c.Data["errmsg"] = "手机不能为空"
+		logs.Error("手机不能为空")
+		c.Redirect("/user/userCenterSite", 302)
+		return
+	}
 	//处理数据
 	//插入操作
 	o := orm.NewOrm()
