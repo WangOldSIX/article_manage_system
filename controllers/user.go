@@ -139,23 +139,23 @@ func (c *UserController) ActiveUser() {
 func (c *UserController) ShowLogin() {
 	userName := c.Ctx.GetCookie("username")
 	userPwd := c.Ctx.GetCookie("userpwd")
-	logs.Info("加密的用户名,密码:\n%v\n%v",userName,userPwd)
+	logs.Info("加密的用户名,密码:\n%v\n%v", userName, userPwd)
 	//解码
-	temp,_:=base64.StdEncoding.DecodeString(userName)
-	temp2,_:=base64.StdEncoding.DecodeString(userPwd)
+	temp, _ := base64.StdEncoding.DecodeString(userName)
+	temp2, _ := base64.StdEncoding.DecodeString(userPwd)
 	if string(temp) == "" {
-		c.Data["userName"]=""
-		c.Data["checked"]=""
-	}else{
-		c.Data["userName"]=string(temp)
-		c.Data["checked"]="checked"
+		c.Data["userName"] = ""
+		c.Data["checked"] = ""
+	} else {
+		c.Data["userName"] = string(temp)
+		c.Data["checked"] = "checked"
 	}
 	if string(temp2) == "" {
-		c.Data["userPwd"]=""
-		c.Data["checked"]=""
-	}else{
-		c.Data["userPwd"]=string(temp2)
-		c.Data["checked"]="checked"
+		c.Data["userPwd"] = ""
+		c.Data["checked"] = ""
+	} else {
+		c.Data["userPwd"] = string(temp2)
+		c.Data["checked"] = "checked"
 	}
 
 	if userName != "" {
@@ -166,8 +166,6 @@ func (c *UserController) ShowLogin() {
 	}
 	c.TplName = "login.html"
 }
-
-
 
 func (c *UserController) HandleLogin() {
 	userName := c.GetString("username")
@@ -206,14 +204,14 @@ func (c *UserController) HandleLogin() {
 	remember_username := c.GetString("remember_username")
 	remember_pwd := c.GetString("remember_pwd")
 	if remember_username == "on" {
-		tmp_username:= base64.StdEncoding.EncodeToString([]byte(remember_username))
+		tmp_username := base64.StdEncoding.EncodeToString([]byte(remember_username))
 		logs.Info("记住用户名(加密):%v", tmp_username)
 		c.Ctx.SetCookie("username", tmp_username, 3600*24*7)
 	} else {
 		c.Ctx.SetCookie("username", "", -1)
 	}
 	if remember_pwd == "on" {
-		tmp_pwd:= base64.StdEncoding.EncodeToString([]byte(remember_username))
+		tmp_pwd := base64.StdEncoding.EncodeToString([]byte(remember_username))
 		logs.Info("记住密码(加密):%v", tmp_pwd)
 		c.Ctx.SetCookie("userpwd", tmp_pwd, 3600*24*7)
 	} else {
@@ -224,23 +222,36 @@ func (c *UserController) HandleLogin() {
 	c.Data["errmsg"] = "登录成功"
 
 	//配置session
-	c.SetSession("userName",userName)
-	c.SetSession("userPwd",user.PassWord)
+	c.SetSession("userName", userName)
+	c.SetSession("userPwd", user.PassWord)
 
 	c.Redirect("/", 302)
 }
 
-//退出登录
-func (c * UserController) Logout(){
+// 退出登录
+func (c *UserController) Logout() {
 	c.DelSession("userName")
 	c.DelSession("userPwd")
 	//跳转视图
 	// c.Redirect("/login", 302)
-	c.Redirect("/",302)
+	c.Redirect("/", 302)
 }
 
-func (c *UserController)ShowUserCenterInfo(){
+func (c *UserController) ShowUserCenterInfo() {
 	getUser(&c.Controller)
-	c.Layout="userCenterLayout.html"
+	//获取用户
+	userName := c.GetSession("userName")
+	c.Data["userName"] = userName
+	//查询用户信息
+	o := orm.NewOrm()
+	//高级查询，表关联
+	var addr models.Address
+	o.QueryTable("Address").RelatedSel("User").Filter("User__Name", userName).Filter("Isdefault", true).One(&addr)
+	if addr.Id == 0 {
+		c.Data["addr"] = ""
+	} else {
+		c.Data["addr"] = addr
+	}
+	c.Layout = "userCenterLayout.html"
 	c.TplName = "user_center_info.html"
 }
