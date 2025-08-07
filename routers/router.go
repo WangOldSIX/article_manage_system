@@ -16,6 +16,9 @@ func init() {
 
 	//跳转首页
 	beego.Router("/", &controllers.GoodsController{},"get:ShowIndex")
+
+	//退出登录
+	beego.Router("/user/logout", &controllers.UserController{},"get:Logout")
 }
 
 var filterFunc=func(ctx *context.Context) {

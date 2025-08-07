@@ -207,3 +207,11 @@ func (c *UserController) HandleLogin() {
 
 	c.Redirect("/", 302)
 }
+
+//退出登录
+func (c * UserController) Logout(){
+	c.DelSession("userName")
+	//跳转视图
+	// c.Redirect("/login", 302)
+	c.Redirect("/",302)
+}
