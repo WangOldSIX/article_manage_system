@@ -9,16 +9,17 @@ type GoodsController struct {
 	beego.Controller
 }
 
-func (c *GoodsController) ShowIndex() {
-	logs.Info("访问首页")
-	userName:=c.GetSession("userName")
-	if userName==nil{
-		c.Data["userName"]=""
-	}else{
-		c.Data["userName"]=userName.(string)
+func getUser(c *beego.Controller) {
+	userName := c.GetSession("userName")
+	if userName == nil {
+		c.Data["userName"] = ""
+	} else {
+		c.Data["userName"] = userName.(string)
 	}
-
-	c.TplName = "index.html"
 }
 
-
+func (c *GoodsController) ShowIndex() {
+	logs.Info("访问首页")
+	getUser(&c.Controller)
+	c.TplName = "index.html"
+}

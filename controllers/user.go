@@ -240,6 +240,7 @@ func (c * UserController) Logout(){
 }
 
 func (c *UserController)ShowUserCenterInfo(){
+	getUser(&c.Controller)
 	c.Layout="userCenterLayout.html"
 	c.TplName = "user_center_info.html"
 }
