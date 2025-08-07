@@ -9,12 +9,13 @@ import (
 
 func init() {
 	beego.InsertFilter("/user/*", beego.BeforeRouter, filterFunc)
-    beego.Router("/", &controllers.MainController{})
 	beego.Router("/register", &controllers.UserController{},"get:ShowRegister;post:HandleRegister")
 	//激活用户
 	beego.Router("/active", &controllers.UserController{},"get:ActiveUser")
 	beego.Router("/login", &controllers.UserController{},"get:ShowLogin;post:HandleLogin")
-	
+
+	//跳转首页
+	beego.Router("/", &controllers.GoodsController{},"get:ShowIndex")
 }
 
 var filterFunc=func(ctx *context.Context) {

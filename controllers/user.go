@@ -205,6 +205,5 @@ func (c *UserController) HandleLogin() {
 	//配置session
 	c.SetSession("userName",userName)
 
-	
-	c.Ctx.WriteString("登录成功")
+	c.Redirect("/", 302)
 }
