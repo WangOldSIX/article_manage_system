@@ -19,6 +19,10 @@ func init() {
 
 	//退出登录
 	beego.Router("/user/logout", &controllers.UserController{},"get:Logout")
+
+	//用户中心
+	beego.Router("/user/userCenterInfo", &controllers.UserController{},"get:ShowUserCenterInfo")
+
 }
 
 var filterFunc=func(ctx *context.Context) {
