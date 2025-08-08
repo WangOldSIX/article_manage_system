@@ -225,7 +225,8 @@ func (c *UserController) HandleLogin() {
 	c.SetSession("userName", userName)
 	c.SetSession("userPwd", user.PassWord)
 
-	c.Redirect("/", 302)
+	// c.Redirect("/", 302)
+	c.TplName="index.html"
 }
 
 // 退出登录

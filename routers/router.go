@@ -15,7 +15,7 @@ func init() {
 	beego.Router("/login", &controllers.UserController{},"get:ShowLogin;post:HandleLogin")
 
 	//跳转首页
-	beego.Router("/", &controllers.GoodsController{},"get:ShowIndex")
+	beego.Router("/", &controllers.UserController{},"get:ShowLogin")
 
 	//退出登录
 	beego.Router("/user/logout", &controllers.UserController{},"get:Logout")
